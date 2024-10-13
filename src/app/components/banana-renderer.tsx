@@ -1,8 +1,6 @@
 import { RigidBody } from "@react-three/rapier";
-import React, { useState } from "react";
+import React, { useRef } from "react";
 import { BananaModel } from "./models";
-
-import { VolumeX, Volume } from "lucide-react";
 
 function RenderBananas({
   count,
@@ -12,14 +10,14 @@ function RenderBananas({
   startPosition: number;
 }) {
   const offset = 5;
-  const [audio] = useState<HTMLAudioElement[]>(() =>
+  const audioRefs = useRef<HTMLAudioElement[]>(
     Array.from({ length: count }, () => new Audio("/collision.mp3"))
   );
+  const audioPlayedFlags = useRef<boolean[]>(Array(count).fill(false));
 
   return (
     <>
       {Array.from({ length: count }).map((_, i) => {
-        let isAudioPlayed: boolean = false;
         return (
           <RigidBody
             key={`banana-${i}`}
@@ -27,9 +25,10 @@ function RenderBananas({
             restitution={0.001}
             mass={5}
             onCollisionEnter={() => {
-              if (!isAudioPlayed) {
-                audio[i].play();
-                isAudioPlayed = true;
+              // Only play the sound once per object
+              if (!audioPlayedFlags.current[i]) {
+                audioRefs.current[i].play();
+                audioPlayedFlags.current[i] = true;
               }
             }}
           >
