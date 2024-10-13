@@ -26,7 +26,7 @@ export function BananaModel(props: JSX.IntrinsicElements["group"]) {
         geometry={nodes.Banana.geometry}
         material={materials["Material.001"]}
         rotation={[Math.PI / 2, 0, 0]}
-        scale={0.05}
+        scale={0.03}
       />
     </group>
   );

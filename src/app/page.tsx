@@ -8,6 +8,9 @@ import {
   OrbitControls,
   OrthographicCamera,
 } from "@react-three/drei";
+import { Physics, RigidBody } from "@react-three/rapier";
+import Floor from "./components/floor/floor";
+import RenderBananas from "./components/banana-renderer";
 
 export default function Home() {
   return (
@@ -15,13 +18,20 @@ export default function Home() {
       <div className="w-[40rem] h-[40rem] bg-gray-100">
         <Canvas camera={{ position: [100, 100, 100], zoom: 5 }}>
           <Suspense>
-            <OrthographicCamera />
-            <Environment files="/trekker_monument_1k.hdr" />
-            <ambientLight intensity={5} />
-            <directionalLight position={[100, 100, 100]} intensity={1} />
-            <OrbitControls enableZoom />
-            <BananaModel />
-            <FlaskModel />
+            <Physics gravity={[0, -9.8, 0]}>
+              <OrthographicCamera />
+              <Environment files="/modern_bathroom_1k.hdr" />
+              <ambientLight intensity={0.3} />
+              <directionalLight position={[100, 100, 100]} intensity={2.5} />
+              <OrbitControls enableZoom />
+
+              <RenderBananas count={5} startPosition={50} />
+
+              <RigidBody type="fixed" colliders={"trimesh"} restitution={0.01}>
+                <FlaskModel position={[0, 11.01, 0]} />
+              </RigidBody>
+              <Floor />
+            </Physics>
           </Suspense>
         </Canvas>
       </div>
