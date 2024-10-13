@@ -2,7 +2,7 @@
 
 import { Canvas } from "@react-three/fiber";
 import { FlaskModel } from "@/app/components/models";
-import { Suspense } from "react";
+import { Suspense, useState } from "react";
 import {
   Environment,
   OrbitControls,
@@ -10,10 +10,19 @@ import {
 } from "@react-three/drei";
 import { Physics, RigidBody } from "@react-three/rapier";
 import RenderBananas from "./components/banana-renderer";
+import TogglePlayButton from "./components/buttons/toggle-play";
 
 export default function Home() {
+  const [play, setPlay] = useState<boolean>(false);
+
+  function togglePlay() {
+    setPlay((prev) => !prev);
+  }
+
   return (
     <div className="w-screen h-screen flex justify-center items-center">
+      <TogglePlayButton onClick={togglePlay} play={play} />
+
       <div className="w-full h-full bg-gray-100">
         <Canvas camera={{ position: [100, 100, 100], zoom: 5 }}>
           <Suspense>
@@ -24,7 +33,7 @@ export default function Home() {
               <directionalLight position={[100, 100, 100]} intensity={2.5} />
               <OrbitControls enableZoom />
 
-              <RenderBananas count={10} startPosition={50} />
+              {play ? <RenderBananas count={20} startPosition={30} /> : null}
 
               <RigidBody type="fixed" colliders={"trimesh"} restitution={0.01}>
                 <FlaskModel position={[0, 0, 0]} />
