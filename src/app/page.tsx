@@ -23,7 +23,7 @@ export default function Home() {
 
   return (
     <div className="w-screen h-screen flex justify-center items-center">
-      <div className="flex items-center space-x-4 fixed top-4 right-4 z-50">
+      <div className="flex items-center space-x-4 fixed top-4 md:right-4 z-50">
         <BananaCountForm
           onSubmit={(newCount: number) => {
             setCount(newCount);
