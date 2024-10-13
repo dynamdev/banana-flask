@@ -25,9 +25,9 @@ export function FlaskModel(props: JSX.IntrinsicElements["group"]) {
       <mesh
         geometry={nodes.pCylinder3.geometry}
         material={materials["Glass.001"]}
-        position={[0, -0.011, 0]}
+        position={[0, 0, 0]}
         rotation={[Math.PI / 2, 0, 0]}
-        scale={0.048}
+        scale={10}
       />
     </group>
   );
