@@ -1,7 +1,7 @@
 "use client";
 
 import { Canvas } from "@react-three/fiber";
-import { Model } from "./components/models/banana";
+import { BananaModel, FlaskModel } from "@/app/components/models";
 import { Suspense } from "react";
 import { OrbitControls } from "@react-three/drei";
 
@@ -13,7 +13,8 @@ export default function Home() {
           <Suspense>
             <ambientLight intensity={1} />
             <OrbitControls enableZoom />
-            <Model />
+            <BananaModel />
+            <FlaskModel />
           </Suspense>
         </Canvas>
       </div>
