@@ -10,7 +10,7 @@ function TogglePlayButton({ onClick, play }: Props) {
   return (
     <button
       onClick={onClick}
-      className="w-32 flex justify-center items-center fixed top-4 right-4 space-x-4 bg-white rounded-lg p-4 z-50"
+      className="w-32 h-14 flex justify-center items-center space-x-4 bg-white rounded-lg p-4 z-50"
     >
       {play ? (
         <span>Reset</span>
