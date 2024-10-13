@@ -9,13 +9,20 @@ function RenderBananas({
   count: number;
   startPosition: number;
 }) {
-  const offset = 50;
+  const offset = 5;
   return (
     <>
       {Array.from({ length: count }).map((_, i) => {
         return (
-          <RigidBody colliders="cuboid" restitution={0.01}>
-            <BananaModel position={[0, startPosition + i * offset, 0.25]} />
+          <RigidBody colliders="hull" restitution={0.001} mass={5}>
+            <BananaModel
+              position={[0, startPosition + i * offset, 0.25]}
+              rotation={[
+                Math.random() * Math.PI * 2,
+                Math.random() * Math.PI * 2,
+                Math.random() * Math.PI * 2,
+              ]}
+            />
           </RigidBody>
         );
       })}
