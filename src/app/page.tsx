@@ -12,6 +12,7 @@ import { Physics, RigidBody } from "@react-three/rapier";
 import RenderBananas from "./components/banana-renderer";
 import TogglePlayButton from "./components/buttons/toggle-play";
 import BananaCountForm from "./components/forms/banana-count";
+import ExistingBananas from "./components/existing-bananas";
 
 export default function Home() {
   const [play, setPlay] = useState<boolean>(false);
@@ -44,6 +45,7 @@ export default function Home() {
               <directionalLight position={[100, 100, 100]} intensity={2.5} />
               <OrbitControls enableZoom />
 
+              <ExistingBananas />
               {play ? <RenderBananas count={count} startPosition={30} /> : null}
 
               <RigidBody type="fixed" colliders={"trimesh"} restitution={0.01}>
