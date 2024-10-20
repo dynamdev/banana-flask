@@ -2,7 +2,7 @@
 
 import { Canvas } from "@react-three/fiber";
 import { FlaskModel } from "@/app/components/models";
-import { FormEvent, Suspense, useState } from "react";
+import { Suspense, useState } from "react";
 import {
   Environment,
   OrbitControls,
@@ -13,10 +13,21 @@ import RenderBananas from "./components/banana-renderer";
 import TogglePlayButton from "./components/buttons/toggle-play";
 import BananaCountForm from "./components/forms/banana-count";
 import ExistingBananas from "./components/existing-bananas";
+import { BananaMetadata } from "./types/banana-metadata";
+import {
+  DEFAULT_BANANA_COUNT,
+  START_BANANA_POSITION,
+  STORAGE_KEY,
+} from "./constants";
 
 export default function Home() {
   const [play, setPlay] = useState<boolean>(false);
-  const [count, setCount] = useState<number>(20);
+  const [count, setCount] = useState<number>(DEFAULT_BANANA_COUNT);
+
+  const storageData = localStorage.getItem(STORAGE_KEY);
+  const [existingBananas] = useState<BananaMetadata>(
+    storageData ? JSON.parse(storageData) : []
+  );
 
   function togglePlay() {
     setPlay((prev) => !prev);
@@ -41,12 +52,19 @@ export default function Home() {
             <Physics gravity={[0, -9.8, 0]}>
               <OrthographicCamera />
               <Environment files="/modern_bathroom_1k.hdr" />
-              <ambientLight intensity={0.3} />
-              <directionalLight position={[100, 100, 100]} intensity={2.5} />
+              <ambientLight intensity={0.1} />
+              <directionalLight position={[100, 100, 100]} intensity={1} />
               <OrbitControls enableZoom />
 
-              <ExistingBananas />
-              {play ? <RenderBananas count={count} startPosition={30} /> : null}
+              <ExistingBananas existingBananas={existingBananas} />
+
+              {play ? (
+                <RenderBananas
+                  count={count}
+                  startPosition={START_BANANA_POSITION}
+                  existingBananas={Object.keys(existingBananas).length}
+                />
+              ) : null}
 
               <RigidBody type="fixed" colliders={"trimesh"} restitution={0.01}>
                 <FlaskModel position={[0, 0, 0]} />

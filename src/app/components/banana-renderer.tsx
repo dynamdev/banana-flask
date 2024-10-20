@@ -1,15 +1,16 @@
 import { RapierRigidBody, RigidBody } from "@react-three/rapier";
 import React, { useRef } from "react";
 import { BananaModel } from "./models";
-
-const STORAGE_KEY = "Banana_metadata";
+import { STORAGE_KEY } from "../constants";
 
 function RenderBananas({
   count,
   startPosition,
+  existingBananas,
 }: {
   count: number;
   startPosition: number;
+  existingBananas: number;
 }) {
   const offset = 5;
   const bananaBodyRefs = useRef<(RapierRigidBody | null)[]>(
@@ -31,7 +32,8 @@ function RenderBananas({
     const storedData = localStorage.getItem(STORAGE_KEY);
     const metadata = storedData ? JSON.parse(storedData) : {};
 
-    metadata[`banana-${i}`] = {
+    const index = existingBananas + i;
+    metadata[`banana-${index}`] = {
       position: { x: position.x, y: position.y, z: position.z },
       rotation: {
         x: rotation.x,

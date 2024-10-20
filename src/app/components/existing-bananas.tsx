@@ -1,22 +1,20 @@
 import React from "react";
 import { BananaModel } from "./models";
+import { STORAGE_KEY } from "../constants";
+import { BananaMetadata } from "../types/banana-metadata";
 
-const STORAGE_KEY = "Banana_metadata";
-
-function ExistingBananas() {
-  const existingBananaMetadata = localStorage.getItem(STORAGE_KEY);
-
-  if (!existingBananaMetadata) return null;
-
-  const parsedMetadata = JSON.parse(existingBananaMetadata);
-
+type Props = {
+  existingBananas: BananaMetadata;
+};
+function ExistingBananas({ existingBananas }: Props) {
   return (
     <>
-      {Array.from({ length: 20 }).map((_, i) => {
-        const { position, rotation } = parsedMetadata[`banana-${i}`];
-        console.log(position);
+      {Object.entries(existingBananas).map(([key, bananaData]) => {
+        const { position, rotation } = bananaData;
+
         return (
           <BananaModel
+            key={key}
             position={[position.x, position.y, position.z]}
             rotation={[rotation.x, rotation.y, rotation.z]}
           />
