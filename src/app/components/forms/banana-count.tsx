@@ -1,4 +1,4 @@
-import React, { FormEvent, useState } from "react";
+import React, { FormEvent } from "react";
 
 type Props = {
   count: number;

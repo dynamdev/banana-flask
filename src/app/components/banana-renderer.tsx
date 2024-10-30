@@ -45,6 +45,8 @@ function RenderBananas({
 
     // Save updated metadata back to localStorage
     localStorage.setItem(STORAGE_KEY, JSON.stringify(metadata));
+
+   
   }
 
   return (
@@ -73,6 +75,7 @@ function RenderBananas({
               Math.random() * Math.PI * 2,
               Math.random() * Math.PI * 2,
             ]}
+           
           >
             <BananaModel />
           </RigidBody>
