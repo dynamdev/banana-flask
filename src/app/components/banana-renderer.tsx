@@ -2,6 +2,7 @@ import { RapierRigidBody, RigidBody } from "@react-three/rapier";
 import React, { useRef } from "react";
 import { BananaModel } from "./models";
 import { STORAGE_KEY } from "../constants";
+import * as THREE from 'three'
 
 function RenderBananas({
   count,
@@ -24,22 +25,28 @@ function RenderBananas({
   function storeBananaPosition(i: number) {
     const body = bananaBodyRefs.current[i];
 
+    console.log(body);
     if (!body) return;
 
     const position = body.translation();
     const rotation = body.rotation();
 
+    const eulerRotation = new THREE.Euler().setFromQuaternion(
+      new THREE.Quaternion(rotation.x, rotation.y, rotation.z, rotation.w),
+      "XYZ"
+    );
+
     const storedData = localStorage.getItem(STORAGE_KEY);
     const metadata = storedData ? JSON.parse(storedData) : {};
 
     const index = existingBananas + i;
+
     metadata[`banana-${index}`] = {
       position: { x: position.x, y: position.y, z: position.z },
       rotation: {
-        x: rotation.x,
-        y: rotation.y,
-        z: rotation.z,
-        w: rotation.w,
+        x: eulerRotation.x,
+        y: eulerRotation.y,
+        z: eulerRotation.z,
       },
     };
 

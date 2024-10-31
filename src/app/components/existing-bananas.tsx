@@ -1,30 +1,19 @@
 import React, { Suspense,  useEffect, useMemo, useRef } from "react";
-// import { BananaModel } from "./models";
-// import { STORAGE_KEY } from "../constants";
 import { BananaMetadata } from "../types/banana-metadata";
 import {  InstancedRigidBodies, InstancedRigidBodyProps, RapierRigidBody, interactionGroups} from "@react-three/rapier";
-import { useGLTF } from "@react-three/drei";
-import { GLTF } from "three/examples/jsm/Addons.js";
 import * as THREE from 'three';
+import useStore  from "../store";
+import { BananaInstanceModel } from "./models";
 
 type Props = {
   existingBananas: BananaMetadata;
-
-};
-
-type GLTFResult = GLTF & {
-  nodes: {
-    Cube002: THREE.Mesh;
-  };
-  materials: {
-    ["Material.001"]: THREE.MeshStandardMaterial;
-  };
 };
 
 
 function ExistingBananas({ existingBananas}: Props) {
   const rigidBodiesRef = useRef<RapierRigidBody[]>(null);
   const instancedMeshRef = useRef<THREE.InstancedMesh>(null);
+  const { setOldBananaCount } = useStore();
 
   const instances = useMemo<InstancedRigidBodyProps[]>(() => {
     return Object.entries(existingBananas).map(([key, bananaData])  => ({
@@ -52,10 +41,11 @@ function ExistingBananas({ existingBananas}: Props) {
         translation.setFromMatrixPosition(matrix);
 
         if (rigidBodiesRef.current) rigidBodiesRef.current[i]?.setTranslation(translation,false)
+        setOldBananaCount(i + 1);  
       });
       instancedMeshRef.current.instanceMatrix.needsUpdate = true;
     }
-  }, [instances]);
+  }, [instances,setOldBananaCount]);
 
   useEffect(() => {
     if (!rigidBodiesRef.current) {
@@ -63,7 +53,7 @@ function ExistingBananas({ existingBananas}: Props) {
     }
 
     const lastIndex = rigidBodiesRef.current.length - 1;
-    const InActive = lastIndex - 3;
+    const InActive = lastIndex - 2;
     
     rigidBodiesRef.current.forEach((body, i) => {
       if (body) {
@@ -76,15 +66,10 @@ function ExistingBananas({ existingBananas}: Props) {
           body.isSleeping(); 
           body.lockRotations(false,false);
           body.lockTranslations(false,false);
-          body.setAngvel(new THREE.Vector3(0,0,0),false)
-          body.setLinvel(new THREE.Vector3(0,0,0),false)
-        }
-        
+        }    
       }
     });
   }, []);
-
-  const { nodes, materials } = useGLTF("/banana-transformed.glb") as unknown as GLTFResult;
 
   return (
     <Suspense fallback="loading">  
@@ -97,11 +82,7 @@ function ExistingBananas({ existingBananas}: Props) {
           friction={0}
           collisionGroups={interactionGroups(1, [0, 2, 1])}
         >
-          <instancedMesh 
-            ref={instancedMeshRef}
-            args={[nodes.Cube002.geometry, materials["Material.001"], instances.length]} 
-            count={instances.length}
-          />
+           <BananaInstanceModel ref={instancedMeshRef} count={instances.length}/>
         </InstancedRigidBodies>
     </Suspense>
   )
@@ -111,4 +92,3 @@ export default ExistingBananas;
 
 
 
-useGLTF.preload("/banana-transformed.glb");

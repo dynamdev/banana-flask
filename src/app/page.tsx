@@ -8,7 +8,7 @@ import {
   OrbitControls,
   OrthographicCamera,
 } from "@react-three/drei";
-import { Physics, RigidBody, interactionGroups } from "@react-three/rapier";
+import {CuboidCollider, Physics, RigidBody, interactionGroups } from "@react-three/rapier";
 import TogglePlayButton from "./components/buttons/toggle-play";
 import BananaCountForm from "./components/forms/banana-count";
 import { BananaMetadata } from "./types/banana-metadata";
@@ -25,11 +25,17 @@ import useStore from "./store";
 export default function Home() {
   const [play, setPlay] = useState<boolean>(false);
   const [count, setCount] = useState<number>(DEFAULT_BANANA_COUNT);
-  const [existingBananas,setExistingBananas] = useState<BananaMetadata>([]);
-  const {newBananaCount,outsideBananaCount,oldBananaCount} = useStore();
+  const [existingBananas,setExistingBananas] = useState<BananaMetadata>({});
+  const {newBananaCount,countBanana,oldBananaCount, setNewBananaCount} = useStore();
 
   function togglePlay() {
     setPlay((prev) => !prev);
+    if(!play){ 
+      setNewBananaCount(newBananaCount)
+    }
+    else{
+      setNewBananaCount(newBananaCount - count)
+    }
   }
 
   useEffect(() => {
@@ -41,12 +47,9 @@ export default function Home() {
 
   return (
     <div className="w-screen h-screen flex justify-center items-center">
-       <div className="text-black bg-white p-3 text-center fixed top-4 left-10 flex flex-col">
+       <div className="text-black bg-white p-3 text-center fixed top-4 flex flex-col z-50">
         <p>
           Total:  {newBananaCount + oldBananaCount}
-        </p>
-        <p>
-          Outside:  {outsideBananaCount}
         </p>
        </div>
 
@@ -65,7 +68,10 @@ export default function Home() {
         <Canvas camera={{ position: [100, 100, 100], zoom: 5 }}>
           <Suspense>
         
-            <Environment files="/modern_bathroom_1k.hdr" />
+            <Environment 
+              // files="/modern_bathroom_1k.hdr"
+              preset="forest" 
+            />
 
             <OrthographicCamera />
 
@@ -76,6 +82,13 @@ export default function Home() {
             <OrbitControls enableZoom />
 
             <Physics gravity={[0, -9.8, 0]}>
+              <RigidBody position={[0,10,0]}>
+                <CuboidCollider
+                  args={[1, 0, 1]}
+                  sensor
+                  onIntersectionExit={() => countBanana()}
+                />
+              </RigidBody>
 
               <ExistingBananas existingBananas={existingBananas} />
 

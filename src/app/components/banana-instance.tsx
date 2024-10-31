@@ -1,20 +1,9 @@
 import { InstancedRigidBodies, InstancedRigidBodyProps, RapierRigidBody, interactionGroups } from '@react-three/rapier'
-import React, {  useMemo, useRef, useState } from 'react'
+import React, {  useCallback, useMemo, useRef} from 'react'
 import * as THREE from 'three'
-import { useGLTF } from '@react-three/drei';
-import { GLTF } from 'three/examples/jsm/Addons.js';
 import { STORAGE_KEY } from '../constants';
-import { useFrame } from '@react-three/fiber';
-import useStore from "../store";
+import { BananaInstanceModel } from './models';
 
-type GLTFResult = GLTF & {
-    nodes: {
-      Cube002: THREE.Mesh;
-    };
-    materials: {
-      ["Material.001"]: THREE.MeshStandardMaterial;
-    };
-  };
 
 const BananaInstance = ({ count, startPosition, existingBananas}: {
     count: number;
@@ -22,15 +11,12 @@ const BananaInstance = ({ count, startPosition, existingBananas}: {
     existingBananas: number;
   }) => {
     
-    const [ isRunning,setIsRunning] = useState(false);
     const offset = 20;
     const rigidBodiesRef = useRef<RapierRigidBody[]>(null)
     const instancedMeshRef = useRef<THREE.InstancedMesh>(null)
-    const { setNewBananaCount, setOutsideBananaCount } = useStore()
+   
     
-    const bananaBodyRefs = useRef<(RapierRigidBody | null)[]>(
-        Array(count).fill(null)
-    );
+    const bananaBodyRefs = useRef<(RapierRigidBody | null)[]>([]);
 
     const audioRefs = useRef<HTMLAudioElement[]>(
      Array.from({ length: count }, () => new Audio("/collision.mp3"))
@@ -38,7 +24,7 @@ const BananaInstance = ({ count, startPosition, existingBananas}: {
 
     const audioPlayedFlags = useRef<boolean[]>(Array(count).fill(false));
 
-   async function storeBananaPosition(i: number) {
+    const storeBananaPosition = useCallback((i: number) => {
 
         if (!rigidBodiesRef.current) {
             return;
@@ -71,13 +57,14 @@ const BananaInstance = ({ count, startPosition, existingBananas}: {
     
         // Save updated metadata back to localStorage
         localStorage.setItem(STORAGE_KEY, JSON.stringify(metadata));
-       
-    }
+        // countBanana()
+    },[existingBananas]);
 
 
     const instances = useMemo<InstancedRigidBodyProps[]>(() => {
         return Array.from({ length: count }).map((_, i) => ({
-            key: 'banana-' + i,
+            key:'banana-' + i,
+            name:'banana-' + i,
             restitution: 0.001,
             mass: 5,
             position: [0, startPosition + i * offset , 0.25],
@@ -88,53 +75,54 @@ const BananaInstance = ({ count, startPosition, existingBananas}: {
             ],
             onCollisionEnter:() => {
                 if (!audioPlayedFlags.current[i]) {
+                    audioRefs.current[i].pause();
+                    audioRefs.current[i].currentTime = 0;
                     audioRefs.current[i].play();
                     audioPlayedFlags.current[i] = true;
                 }
             },
-            ref: async (ref: RapierRigidBody | null) => (bananaBodyRefs.current[i] = ref),
+            // ref: (ref: RapierRigidBody) => (bananaBodyRefs.current[i] = ref),
+            ref: (ref: RapierRigidBody | null) => {
+              if (ref) bananaBodyRefs.current[i] = ref; // Set each ref by index
+            },
             onSleep: () => storeBananaPosition(i),
         }));
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [count, startPosition]);
+   
+    }, [count, startPosition, storeBananaPosition]);
 
     
+    // const [countBelowThreshold, setCountBelowThreshold ] = useState(0);
+    // const [ hasCrossed, setHasCrossed ] = useState(Array(count).fill(false));
 
-    useFrame(() => {
-      if (instancedMeshRef.current) {
-        const newPositions = [];
-        const position = new THREE.Vector3();
-        const matrix = new THREE.Matrix4();
-  
-        for (let i = 0; i < count; i++) {
-          // instancedMeshRef.current.getMatrixAt(i, matrix); 
-          matrix.decompose(position, new THREE.Quaternion(), new THREE.Vector3()); 
-          newPositions.push(position.clone()); 
+    // useFrame(() => {
+    //   if (!rigidBodiesRef.current) return;
+      
+    //   const bananas = rigidBodiesRef.current;
 
+    //   const newCrossed = bananas.map((banana,index) => {
+    //     if(banana.translation().y < 0 && !hasCrossed[index]){
+    //       return true;
+    //     }
+    //     return hasCrossed[index];
+    //   })
 
-          for(let j = 0; j < newPositions.length ; j++){
-            if(newPositions[j].y > 98 && newPositions[j].y < 100){
-              
-              setNewBananaCount((j + 1));
-              setOutsideBananaCount(count - (j - 1));
+    //   const newCount = newCrossed.filter(crossed => crossed).length;
+    //   setCountBelowThreshold(newCount);
+    //   setHasCrossed(newCrossed);
+    //   console.log(newCount);
 
-              // const bananaString = localStorage.getItem('banana-metadata')
+    //   // const allBelow = rigidBodiesRef.current.every(body => body.translation().y < 100);
+    //   // console.log(allBelow);
 
-              // if(bananaString){
-            
-              //   const oldBanana = JSON.parse(bananaString);
-                
-              //   setOldBananaCount(Object.keys(oldBanana).length)
-                
-              // }
-             
-            }
-          }
-        }
-      }
-    });
-    
-    const { nodes, materials } = useGLTF("/banana-transformed.glb") as unknown  as GLTFResult;
+    //   // for (let i = 0; i < count; i++) { 
+    //   //   const { y } = rigidBodiesRef.current[i].translation();
+    //   //   if(y > 98 && y < 100){
+    //   //     console.log(rigidBodiesRef.current[i])
+    //   //     return;
+    //   //   }
+    //   //   return
+    //   // }
+    // });
 
     return (
         <InstancedRigidBodies 
@@ -145,12 +133,10 @@ const BananaInstance = ({ count, startPosition, existingBananas}: {
           scale={0.225} 
           collisionGroups={interactionGroups(2, [0, 1, 2])}
         >
-            <instancedMesh ref={instancedMeshRef} args={[nodes.Cube002.geometry, materials["Material.001"], count]}  count={count} />
+            <BananaInstanceModel ref={instancedMeshRef} count={count}/>
         </InstancedRigidBodies>
     )
 }
 
 export default BananaInstance
 
-
-useGLTF.preload("/banana-transformed.glb");
