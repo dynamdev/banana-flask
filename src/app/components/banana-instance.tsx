@@ -3,7 +3,8 @@ import React, {  useCallback, useMemo, useRef} from 'react'
 import * as THREE from 'three'
 import { STORAGE_KEY } from '../constants';
 import { BananaInstanceModel } from './models';
-
+import {  useControls } from 'leva'
+import useDebugStore from '../debug-store';
 
 const BananaInstance = ({ count, startPosition, existingBananas}: {
     count: number;
@@ -11,6 +12,17 @@ const BananaInstance = ({ count, startPosition, existingBananas}: {
     existingBananas: number;
   }) => {
     
+    const { bananaBounce } = useDebugStore();
+
+    const { mass , gravityScale , friction,collider } = useControls({
+      restitution: bananaBounce,
+      mass:{ max:30,min:1, step:0.1, value:5},
+      gravityScale: { max:10,min:1, step:0.1, value:1},
+      friction: {max:1, min:0.1, step:0.1, value:0.5},
+      collider: { options: ['hull', 'ball' ,'cuboid']}
+    })
+    
+
     const offset = 20;
     const rigidBodiesRef = useRef<RapierRigidBody[]>(null)
     const instancedMeshRef = useRef<THREE.InstancedMesh>(null)
@@ -89,12 +101,14 @@ const BananaInstance = ({ count, startPosition, existingBananas}: {
     
 
     return (
-        <InstancedRigidBodies 
+        <InstancedRigidBodies
+          gravityScale={gravityScale}
+          mass={mass} 
           ref={rigidBodiesRef} 
           instances={instances}  
-          colliders="hull" 
-          restitution={0.1} 
-          friction={0.5}
+          colliders={collider} 
+          restitution={bananaBounce.value} 
+          friction={friction}
           scale={0.225} 
           collisionGroups={interactionGroups(2, [0, 1, 2])}
         >

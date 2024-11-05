@@ -9,7 +9,6 @@ type Props = {
   existingBananas: BananaMetadata;
 };
 
-
 function ExistingBananas({ existingBananas}: Props) {
   const rigidBodiesRef = useRef<RapierRigidBody[]>(null);
   const instancedMeshRef = useRef<THREE.InstancedMesh>(null);
@@ -58,7 +57,7 @@ function ExistingBananas({ existingBananas}: Props) {
     if(actionStatus === 'play'){
       rigidBodiesRef.current.forEach((body,i) => {
         if (body) {
-          if(i < InActive){
+          if(i > InActive){
             console.log(body)
             // body.setEnabled(false);
             body.isSleeping();

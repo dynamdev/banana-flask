@@ -21,17 +21,22 @@ import BananaInstance from "./components/banana-instance";
 import ExistingBananas from "./components/existing-bananas";
 import useStore from "./store";
 
-// import { useControls } from 'leva'
+import {  useControls  } from 'leva'
+import useDebugStore from "./debug-store";
 
 export default function Home() {
   const [play, setPlay] = useState<boolean>(false);
   const [count, setCount] = useState<number>(DEFAULT_BANANA_COUNT);
   const [existingBananas,setExistingBananas] = useState<BananaMetadata>({});
   const {newBananaCount,countBanana,oldBananaCount, setNewBananaCount , setActionStatus} = useStore();
-  
-  // const debug = useControls({
-  //   Debug: false,
-  // })
+  const { debug ,toggleDebug } = useDebugStore();
+ 
+  const { hdri } = useControls({
+   debug :{ value:debug, onChange: () => toggleDebug()},
+   hdri: { options:['forest','city','sunset' , 'apartment' , 'dawn', 'lobby', 'night', 'park']}
+  })
+
+
 
   function togglePlay() {
     setPlay((prev) => !prev);
@@ -54,7 +59,8 @@ export default function Home() {
 
   return (
     <div className="w-screen h-screen flex justify-center items-center">
-       {/* <Leva collapsed /> */}
+      {/* <Leva  />
+      <LevaPanel   /> */}
       <div className="flex items-center space-x-4 fixed top-4 md:right-4 z-50">
         <div className="text-black bg-white p-4 rounded-lg space-x-4 text-center flex flex-col z-50">
           <p>
@@ -77,7 +83,7 @@ export default function Home() {
         
             <Environment 
               // files="/modern_bathroom_1k.hdr"
-              preset="forest" 
+              preset={hdri}
             />
 
             <OrthographicCamera />
@@ -88,7 +94,7 @@ export default function Home() {
 
             <OrbitControls enableZoom />
 
-            <Physics gravity={[0, -9.8, 0]} >
+            <Physics gravity={[0, -9.8, 0]} debug={debug}>
               <RigidBody position={[0,10,0]}>
                 <CuboidCollider
                   args={[1, 0, 1]}
