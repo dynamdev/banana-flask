@@ -33,7 +33,7 @@ export default function Home() {
  
   const { hdri } = useControls({
    debug :{ value:debug, onChange: () => toggleDebug()},
-   hdri: { options:['forest','city','sunset' , 'apartment' , 'dawn', 'lobby', 'night', 'park']}
+   hdri: { options:['forest','city','sunset' , 'apartment' , 'dawn', 'lobby', 'night', 'park'] as const}
   })
 
 

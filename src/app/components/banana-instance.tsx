@@ -19,7 +19,7 @@ const BananaInstance = ({ count, startPosition, existingBananas}: {
       mass:{ max:30,min:1, step:0.1, value:5},
       gravityScale: { max:10,min:1, step:0.1, value:1},
       friction: {max:1, min:0.1, step:0.1, value:0.5},
-      collider: { options: ['hull', 'ball' ,'cuboid']}
+      collider: { options: ['hull', 'ball' ,'cuboid'] as const}
     })
     
 
