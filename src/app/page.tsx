@@ -21,20 +21,27 @@ import BananaInstance from "./components/banana-instance";
 import ExistingBananas from "./components/existing-bananas";
 import useStore from "./store";
 
+// import { useControls } from 'leva'
 
 export default function Home() {
   const [play, setPlay] = useState<boolean>(false);
   const [count, setCount] = useState<number>(DEFAULT_BANANA_COUNT);
   const [existingBananas,setExistingBananas] = useState<BananaMetadata>({});
-  const {newBananaCount,countBanana,oldBananaCount, setNewBananaCount} = useStore();
+  const {newBananaCount,countBanana,oldBananaCount, setNewBananaCount , setActionStatus} = useStore();
+  
+  // const debug = useControls({
+  //   Debug: false,
+  // })
 
   function togglePlay() {
     setPlay((prev) => !prev);
     if(!play){ 
+      setActionStatus('play')
       setNewBananaCount(newBananaCount)
     }
     else{
-      setNewBananaCount(newBananaCount - count)
+      setNewBananaCount(0)
+      setActionStatus('stop')
     }
   }
 
@@ -47,13 +54,13 @@ export default function Home() {
 
   return (
     <div className="w-screen h-screen flex justify-center items-center">
-       <div className="text-black bg-white p-3 text-center fixed top-4 flex flex-col z-50">
-        <p>
-          Total:  {newBananaCount + oldBananaCount}
-        </p>
-       </div>
-
+       {/* <Leva collapsed /> */}
       <div className="flex items-center space-x-4 fixed top-4 md:right-4 z-50">
+        <div className="text-black bg-white p-4 rounded-lg space-x-4 text-center flex flex-col z-50">
+          <p>
+            Total:  {newBananaCount + oldBananaCount}
+          </p>
+        </div>
         <BananaCountForm
           onSubmit={(newCount: number) => {
             setCount(newCount);
@@ -65,7 +72,7 @@ export default function Home() {
       </div>
 
       <div className="w-full h-full bg-gray-100">
-        <Canvas camera={{ position: [100, 100, 100], zoom: 5 }}>
+        <Canvas camera={{ position: [100, 100, 100], zoom: 5 , near:0.1,far:1000 }} frameloop="always" >
           <Suspense>
         
             <Environment 
@@ -81,7 +88,7 @@ export default function Home() {
 
             <OrbitControls enableZoom />
 
-            <Physics gravity={[0, -9.8, 0]}>
+            <Physics gravity={[0, -9.8, 0]} >
               <RigidBody position={[0,10,0]}>
                 <CuboidCollider
                   args={[1, 0, 1]}

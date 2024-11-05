@@ -13,7 +13,7 @@ type Props = {
 function ExistingBananas({ existingBananas}: Props) {
   const rigidBodiesRef = useRef<RapierRigidBody[]>(null);
   const instancedMeshRef = useRef<THREE.InstancedMesh>(null);
-  const { setOldBananaCount } = useStore();
+  const { setOldBananaCount,actionStatus } = useStore();
 
   const instances = useMemo<InstancedRigidBodyProps[]>(() => {
     return Object.entries(existingBananas).map(([key, bananaData])  => ({
@@ -53,23 +53,38 @@ function ExistingBananas({ existingBananas}: Props) {
     }
 
     const lastIndex = rigidBodiesRef.current.length - 1;
-    const InActive = lastIndex - 2;
+    const InActive = lastIndex - 5;
     
-    rigidBodiesRef.current.forEach((body, i) => {
-      if (body) {
-        if(i < InActive){
-          body.setEnabled(false);
-          body.isSleeping(); 
-          body.lockRotations(true,false);
-          body.lockTranslations(true,false);
-        }else{
-          body.isSleeping(); 
-          body.lockRotations(false,false);
-          body.lockTranslations(false,false);
-        }    
-      }
-    });
-  }, []);
+    if(actionStatus === 'play'){
+      rigidBodiesRef.current.forEach((body,i) => {
+        if (body) {
+          if(i < InActive){
+            console.log(body)
+            // body.setEnabled(false);
+            body.isSleeping();
+            body.lockRotations(true,false);
+            body.lockTranslations(true,false);
+          }
+          else{
+            body.isSleeping();
+            body.setAngularDamping(0.5);
+            body.setAngvel(new THREE.Vector3(0), true);
+            body.lockRotations(false,false);
+            body.lockTranslations(false,false);
+          }
+        }
+      });
+    }else{
+      rigidBodiesRef.current.forEach((body) => {
+        if (body) {
+            body.isSleeping(); 
+            body.lockRotations(true,false);
+            body.lockTranslations(true,false);
+        }
+      });
+    }
+
+  }, [actionStatus]);
 
   return (
     <Suspense fallback="loading">  
@@ -77,9 +92,11 @@ function ExistingBananas({ existingBananas}: Props) {
           instances={instances}
           ref={rigidBodiesRef}
           colliders="cuboid"
-          restitution={0} 
+          linearDamping={1}  
+          angularDamping={1}
+          restitution={1}
+          friction={0.5}
           scale={0.225} 
-          friction={0}
           collisionGroups={interactionGroups(1, [0, 2, 1])}
         >
            <BananaInstanceModel ref={instancedMeshRef} count={instances.length}/>

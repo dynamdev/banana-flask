@@ -9,9 +9,13 @@ interface BananaState {
     setNewBananaCount: (newData:number) => void,
     setOldBananaCount: (newData:number) => void,
     setOutsideBananaCount: (newData:number) => void,
+    actionStatus: 'play' | 'stop',
+    setActionStatus: (data: 'play' | 'stop') => void
 }
 
 const useStore = create<BananaState>((set) => ({
+  actionStatus:'stop',
+  setActionStatus: (data: 'play' | 'stop') => set(() => ({ actionStatus:data})),
   newBananaCount: 0,
   oldBananaCount: 0,
   outsideBananaCount: 0,

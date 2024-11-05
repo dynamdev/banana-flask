@@ -41,6 +41,7 @@ export const BananaInstanceModel = forwardRef<InstancedMesh, BananaInstanceModel
   return (
     <instancedMesh
       ref={ref}
+      frustumCulled={false} 
       args={[nodes.Cube002.geometry, materials["Material.001"], props.count]}
       {...props} 
     />
