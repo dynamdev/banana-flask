@@ -6,6 +6,7 @@ import { BananaInstanceModel } from './models';
 import {  useControls } from 'leva'
 import useDebugStore from '../debug-store';
 
+
 const BananaInstance = ({ count, startPosition, existingBananas}: {
     count: number;
     startPosition: number;
@@ -90,6 +91,7 @@ const BananaInstance = ({ count, startPosition, existingBananas}: {
                 //     audioRefs.current[i].play();
                 //     audioPlayedFlags.current[i] = true;
                 // }
+                handleCollisionEnter(i)
             },
             ref: (ref: RapierRigidBody | null) => {
               if (ref) bananaBodyRefs.current[i] = ref; 
@@ -98,7 +100,38 @@ const BananaInstance = ({ count, startPosition, existingBananas}: {
         }));
    
     }, [count, startPosition, storeBananaPosition]);
-    
+
+
+    const handleCollisionEnter = (index:number) => {
+
+      if (!rigidBodiesRef.current) {
+        return;
+      }
+
+       const velocityThreshold = 0.5;
+      
+      const linearVelocity = rigidBodiesRef.current[index].linvel();
+          const velocityMagnitude = Math.sqrt(
+            linearVelocity.x * linearVelocity.x +
+            linearVelocity.y * linearVelocity.y +
+            linearVelocity.z * linearVelocity.z
+          );
+          
+          console.log(velocityMagnitude);
+          // console.log(linearVelocity);
+          // Check if the velocity is above the threshold
+          if (velocityMagnitude < velocityThreshold) {
+            // rigidBodiesRef.current[index].setEnabled(false)
+            rigidBodiesRef.current[index].sleep()
+            rigidBodiesRef.current[index].lockRotations(true,false);
+            rigidBodiesRef.current[index].lockTranslations(true,false);
+            rigidBodiesRef.current[index].setLinvel({ x: 0, y: 0, z: 0 },false);
+            rigidBodiesRef.current[index].setAngvel({ x: 0, y: 0, z: 0 },false);
+
+          }
+    }
+
+      
 
     return (
         <InstancedRigidBodies
@@ -111,6 +144,7 @@ const BananaInstance = ({ count, startPosition, existingBananas}: {
           friction={friction}
           scale={0.225} 
           collisionGroups={interactionGroups(2, [0, 1, 2])}
+          
         >
             <BananaInstanceModel ref={instancedMeshRef} count={count}/>
         </InstancedRigidBodies>

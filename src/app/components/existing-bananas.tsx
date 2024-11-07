@@ -15,13 +15,16 @@ function ExistingBananas({ existingBananas}: Props) {
   const { setOldBananaCount,actionStatus } = useStore();
 
   const instances = useMemo<InstancedRigidBodyProps[]>(() => {
-    return Object.entries(existingBananas).map(([key, bananaData])  => ({
+    return Object.entries(existingBananas).map(([key, bananaData],index)  => ({
         key: key,
         name:key,
         restitution: 0,
         friction:0,
         position:[bananaData.position.x, bananaData.position.y, bananaData.position.z],
         rotation:[bananaData.rotation.x, bananaData.rotation.y, bananaData.rotation.z],
+        onCollisionEnter:() => {
+          handleCollisionEnter(index)
+        }
     }));
   }, [existingBananas]);
 
@@ -57,15 +60,13 @@ function ExistingBananas({ existingBananas}: Props) {
     if(actionStatus === 'play'){
       rigidBodiesRef.current.forEach((body,i) => {
         if (body) {
-          if(i > InActive){
-            console.log(body)
-            // body.setEnabled(false);
-            body.isSleeping();
+          if(i < InActive){
+            body.sleep();
             body.lockRotations(true,false);
             body.lockTranslations(true,false);
           }
           else{
-            body.isSleeping();
+            body.wakeUp()
             body.setAngularDamping(0.5);
             body.setAngvel(new THREE.Vector3(0), true);
             body.lockRotations(false,false);
@@ -84,6 +85,32 @@ function ExistingBananas({ existingBananas}: Props) {
     }
 
   }, [actionStatus]);
+
+  const handleCollisionEnter = (index:number) => {
+
+    if (!rigidBodiesRef.current) {
+      return;
+    }
+
+    const velocityThreshold = 0.5;
+    
+    const linearVelocity = rigidBodiesRef.current[index].linvel();
+    const velocityMagnitude = Math.sqrt(
+        linearVelocity.x * linearVelocity.x +
+        linearVelocity.y * linearVelocity.y +
+        linearVelocity.z * linearVelocity.z
+    );
+        
+    console.log(velocityMagnitude);
+    if (velocityMagnitude < velocityThreshold) {
+      rigidBodiesRef.current[index].sleep()
+      rigidBodiesRef.current[index].lockRotations(true,false);
+      rigidBodiesRef.current[index].lockTranslations(true,false);
+      rigidBodiesRef.current[index].setLinvel({ x: 0, y: 0, z: 0 },false);
+      rigidBodiesRef.current[index].setAngvel({ x: 0, y: 0, z: 0 },false);
+    }
+  }
+
 
   return (
     <Suspense fallback="loading">  

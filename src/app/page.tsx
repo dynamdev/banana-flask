@@ -94,7 +94,7 @@ export default function Home() {
 
             <OrbitControls enableZoom />
 
-            <Physics gravity={[0, -9.8, 0]} debug={debug}>
+            <Physics gravity={[0, -9.8, 0]} debug={debug} timeStep={1/60}>
               <RigidBody position={[0,10,0]}>
                 <CuboidCollider
                   args={[1, 0, 1]}
