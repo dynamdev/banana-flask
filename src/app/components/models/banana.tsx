@@ -1,7 +1,8 @@
 import * as THREE from "three";
-import React from "react";
+import React, { forwardRef } from "react";
 import { useGLTF } from "@react-three/drei";
 import { GLTF } from "three-stdlib";
+import { InstancedMesh } from "three";
 
 type GLTFResult = GLTF & {
   nodes: {
@@ -12,8 +13,9 @@ type GLTFResult = GLTF & {
   };
 };
 
-export function BananaModel(props: JSX.IntrinsicElements["group"]) {
+export function BananaModel (props: JSX.IntrinsicElements["group"]) {
   const { nodes, materials } = useGLTF("/banana-transformed.glb") as GLTFResult;
+  
   return (
     <group {...props} dispose={null}>
       <mesh
@@ -23,7 +25,30 @@ export function BananaModel(props: JSX.IntrinsicElements["group"]) {
         scale={0.225}
       />
     </group>
+    
   );
 }
+
+
+type BananaInstanceModelProps = {
+  count: number;
+} & JSX.IntrinsicElements["instancedMesh"];
+
+
+export const BananaInstanceModel = forwardRef<InstancedMesh, BananaInstanceModelProps>((props,ref) => {
+  const { nodes, materials } = useGLTF("/banana-transformed.glb") as unknown as  GLTFResult
+
+  return (
+    <instancedMesh
+      ref={ref}
+      frustumCulled={false} 
+      args={[nodes.Cube002.geometry, materials["Material.001"], props.count]}
+      {...props} 
+    />
+  );
+})
+BananaInstanceModel.displayName = "BananaInstanceModel";
+
+
 
 useGLTF.preload("/banana-transformed.glb");
