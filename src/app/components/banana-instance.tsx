@@ -3,8 +3,8 @@ import React, {  useCallback, useMemo, useRef} from 'react'
 import * as THREE from 'three'
 import { STORAGE_KEY } from '../constants';
 import { BananaInstanceModel } from './models';
-import {  useControls } from 'leva'
-import useDebugStore from '../debug-store';
+// import {  useControls } from 'leva'
+// import useDebugStore from '../debug-store';
 
 
 const BananaInstance = ({ count, startPosition, existingBananas}: {
@@ -13,15 +13,23 @@ const BananaInstance = ({ count, startPosition, existingBananas}: {
     existingBananas: number;
   }) => {
     
-    const { bananaBounce } = useDebugStore();
+    const banana = {
+      friction:0.5,
+      gravityScale:1.5,
+      mass:10,
+      restitution:0.1,
+      collider:'hull'
+    }
 
-    const { mass , gravityScale , friction,collider } = useControls({
-      restitution: bananaBounce,
-      mass:{ max:30,min:1, step:0.1, value:5},
-      gravityScale: { max:10,min:1, step:0.1, value:1},
-      friction: {max:1, min:0.1, step:0.1, value:0.5},
-      collider: { options: ['hull', 'ball' ,'cuboid'] as const}
-    })
+    // const { bananaBounce } = useDebugStore();
+
+    // const { mass , gravityScale , friction,collider } = useControls({
+    //   restitution: bananaBounce,
+    //   mass:{ max:30,min:1, step:0.1, value:5},
+    //   gravityScale: { max:10,min:1, step:0.1, value:1},
+    //   friction: {max:1, min:0.1, step:0.1, value:0.5},
+    //   collider: { options: ['hull', 'ball' ,'cuboid'] as const}
+    // })
     
 
     const offset = 20;
@@ -117,7 +125,7 @@ const BananaInstance = ({ count, startPosition, existingBananas}: {
             linearVelocity.z * linearVelocity.z
           );
           
-          console.log(velocityMagnitude);
+          
           // console.log(linearVelocity);
           // Check if the velocity is above the threshold
           if (velocityMagnitude < velocityThreshold) {
@@ -135,13 +143,13 @@ const BananaInstance = ({ count, startPosition, existingBananas}: {
 
     return (
         <InstancedRigidBodies
-          gravityScale={gravityScale}
-          mass={mass} 
+          gravityScale={banana.gravityScale}
+          mass={banana.mass} 
           ref={rigidBodiesRef} 
           instances={instances}  
-          colliders={collider} 
-          restitution={bananaBounce.value} 
-          friction={friction}
+          colliders="hull"
+          restitution={banana.restitution} 
+          friction={banana.friction}
           scale={0.225} 
           collisionGroups={interactionGroups(2, [0, 1, 2])}
           

@@ -21,20 +21,21 @@ import BananaInstance from "./components/banana-instance";
 import ExistingBananas from "./components/existing-bananas";
 import useStore from "./store";
 
-import {  useControls  } from 'leva'
-import useDebugStore from "./debug-store";
+
+// import {  useControls  } from 'leva'
+// import useDebugStore from "./debug-store";
 
 export default function Home() {
   const [play, setPlay] = useState<boolean>(false);
   const [count, setCount] = useState<number>(DEFAULT_BANANA_COUNT);
   const [existingBananas,setExistingBananas] = useState<BananaMetadata>({});
   const {newBananaCount,countBanana,oldBananaCount, setNewBananaCount , setActionStatus} = useStore();
-  const { debug ,toggleDebug } = useDebugStore();
+  // const { debug ,toggleDebug } = useDebugStore();
  
-  const { hdri } = useControls({
-   debug :{ value:debug, onChange: () => toggleDebug()},
-   hdri: { options:['forest','city','sunset' , 'apartment' , 'dawn', 'lobby', 'night', 'park'] as const}
-  })
+  // const { hdri } = useControls({
+  //  debug :{ value:debug, onChange: () => toggleDebug()},
+  //  hdri: { options:['forest','city','sunset' , 'apartment' , 'dawn', 'lobby', 'night', 'park'] as const}
+  // })
 
 
 
@@ -83,9 +84,9 @@ export default function Home() {
         
             <Environment 
               // files="/modern_bathroom_1k.hdr"
-              preset={hdri}
+              preset='forest'
             />
-
+  
             <OrthographicCamera />
 
             <directionalLight position={[100, 100, 100]} intensity={1} />
@@ -94,8 +95,8 @@ export default function Home() {
 
             <OrbitControls enableZoom />
 
-            <Physics gravity={[0, -9.8, 0]} debug={debug} timeStep={1/60}>
-              <RigidBody position={[0,10,0]}>
+            <Physics gravity={[0, -9.8, 0]} timeStep={1/60}>
+              <RigidBody position={[0,14,0]}>
                 <CuboidCollider
                   args={[1, 0, 1]}
                   sensor

@@ -55,7 +55,7 @@ function ExistingBananas({ existingBananas}: Props) {
     }
 
     const lastIndex = rigidBodiesRef.current.length - 1;
-    const InActive = lastIndex - 5;
+    const InActive = lastIndex - 8;
     
     if(actionStatus === 'play'){
       rigidBodiesRef.current.forEach((body,i) => {
@@ -83,7 +83,6 @@ function ExistingBananas({ existingBananas}: Props) {
         }
       });
     }
-
   }, [actionStatus]);
 
   const handleCollisionEnter = (index:number) => {
@@ -100,8 +99,7 @@ function ExistingBananas({ existingBananas}: Props) {
         linearVelocity.y * linearVelocity.y +
         linearVelocity.z * linearVelocity.z
     );
-        
-    console.log(velocityMagnitude);
+ 
     if (velocityMagnitude < velocityThreshold) {
       rigidBodiesRef.current[index].sleep()
       rigidBodiesRef.current[index].lockRotations(true,false);
